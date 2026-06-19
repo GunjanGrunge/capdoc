@@ -400,7 +400,6 @@ export default function App() {
           <!-- Footer Template -->
           <div style="margin-top: 48px; border-top: 1px solid #E2E8F0; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500;">
             <span>© ${new Date().getFullYear()} ${exportCompany}. All rights reserved. Confidential.</span>
-            <span style="font-weight: 600; color: #64748B;">Build By Gunjan Sakar with ❤️</span>
             <span>Workspace Ref: ${exportDoc.projectId}-${exportDoc.id}</span>
           </div>
         </div>
@@ -449,10 +448,6 @@ export default function App() {
           
           <div>
             ${htmlContent}
-          </div>
-
-          <div style="margin-top: 40px; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 9pt; color: #94A3B8; text-align: center;">
-            <p>Build By Gunjan Sakar with ❤️</p>
           </div>
         `;
 
