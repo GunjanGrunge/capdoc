@@ -400,7 +400,7 @@ export default function App() {
           <!-- Footer Template -->
           <div style="margin-top: 48px; border-top: 1px solid #E2E8F0; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500;">
             <span>© ${new Date().getFullYear()} ${exportCompany}. All rights reserved. Confidential.</span>
-            <span style="font-weight: 600; color: #64748B;">Build By Gunjan Sakar with &lt;3</span>
+            <span style="font-weight: 600; color: #64748B;">Build By Gunjan Sakar with ❤️</span>
             <span>Workspace Ref: ${exportDoc.projectId}-${exportDoc.id}</span>
           </div>
         </div>
@@ -452,7 +452,7 @@ export default function App() {
           </div>
 
           <div style="margin-top: 40px; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 9pt; color: #94A3B8; text-align: center;">
-            <p>Build By Gunjan Sakar with &lt;3</p>
+            <p>Build By Gunjan Sakar with ❤️</p>
           </div>
         `;
 
@@ -715,7 +715,7 @@ export default function App() {
           <div className="client-tag">Workspace Client</div>
           <div className="client-name">Capgemini Client Portal</div>
           <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.45)', marginTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '6px', textAlign: 'center' }}>
-            Build By Gunjan Sakar with {"<3"}
+            Build By Gunjan Sakar with ❤️
           </div>
         </div>
       </aside>
