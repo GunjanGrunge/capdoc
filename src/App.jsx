@@ -118,6 +118,43 @@ export default function App() {
   // Toasts
   const [toasts, setToasts] = useState([]);
 
+  // Intro Splash & Progress Bar States
+  const [isIntroActive, setIsIntroActive] = useState(true);
+  const [isIntroFade, setIsIntroFade] = useState(false);
+  const [progressState, setProgressState] = useState({ active: false, percent: 0, title: '', desc: '' });
+
+  // Handle intro splash timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsIntroFade(true);
+      const removeTimer = setTimeout(() => {
+        setIsIntroActive(false);
+      }, 800);
+      return () => clearTimeout(removeTimer);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Run simulated crawling ant progress bar
+  const runSimulatedProgress = (title, desc, onComplete) => {
+    setProgressState({ active: true, percent: 0, title, desc });
+    let current = 0;
+    const interval = setInterval(() => {
+      current += Math.floor(Math.random() * 12) + 6; // random increment between 6% and 18%
+      if (current >= 100) {
+        current = 100;
+        clearInterval(interval);
+        setProgressState(prev => ({ ...prev, percent: 100 }));
+        setTimeout(() => {
+          setProgressState({ active: false, percent: 0, title: '', desc: '' });
+          onComplete();
+        }, 500);
+      } else {
+        setProgressState(prev => ({ ...prev, percent: current }));
+      }
+    }, 120);
+  };
+
   // Load Initial Data
   useEffect(() => {
     const startup = async () => {
@@ -269,30 +306,34 @@ export default function App() {
 
   // Document Actions
   const handleSaveDocument = async (docData) => {
-    try {
-      const saved = await dbSaveDocument(docData);
-      addToast(`Document "${saved.title}" saved successfully!`, 'success');
-      loadData();
-    } catch (error) {
-      addToast('Failed to save document: ' + error, 'error');
-    }
+    runSimulatedProgress('Importing Documentation', `Uploading and processing "${docData.title}"...`, async () => {
+      try {
+        const saved = await dbSaveDocument(docData);
+        addToast(`Document "${saved.title}" saved successfully!`, 'success');
+        loadData();
+      } catch (error) {
+        addToast('Failed to save document: ' + error, 'error');
+      }
+    });
   };
 
   const handleUpdateActiveDocument = async () => {
     if (!activeDoc) return;
-    try {
-      const updated = {
-        ...activeDoc,
-        title: editedTitle,
-        content: editedContent
-      };
-      await dbSaveDocument(updated);
-      setActiveDoc(updated);
-      addToast('Document saved successfully.', 'success');
-      loadData();
-    } catch (error) {
-      addToast('Failed to update document: ' + error, 'error');
-    }
+    runSimulatedProgress('Saving Modifications', `Writing content changes for "${editedTitle}"...`, async () => {
+      try {
+        const updated = {
+          ...activeDoc,
+          title: editedTitle,
+          content: editedContent
+        };
+        await dbSaveDocument(updated);
+        setActiveDoc(updated);
+        addToast('Document saved successfully.', 'success');
+        loadData();
+      } catch (error) {
+        addToast('Failed to update document: ' + error, 'error');
+      }
+    });
   };
 
   const handleDeleteDocument = async (id, title) => {
@@ -312,16 +353,18 @@ export default function App() {
 
   // Trigger file download
   const handleDownload = (doc) => {
-    if (doc.type === 'excel') {
-      downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.xlsx`, 'excel');
-      addToast(`Excel spreadsheet "${doc.fileName || doc.title}" downloaded.`, 'success');
-    } else if (doc.type === 'html') {
-      downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.html`, 'html');
-      addToast(`HTML document "${doc.fileName || doc.title}" downloaded.`, 'success');
-    } else {
-      downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.md`, 'markdown');
-      addToast(`Markdown source "${doc.fileName || doc.title}" downloaded.`, 'success');
-    }
+    runSimulatedProgress('Downloading Asset Source', `Retrieving original file data for "${doc.title}"...`, () => {
+      if (doc.type === 'excel') {
+        downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.xlsx`, 'excel');
+        addToast(`Excel spreadsheet "${doc.fileName || doc.title}" downloaded.`, 'success');
+      } else if (doc.type === 'html') {
+        downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.html`, 'html');
+        addToast(`HTML document "${doc.fileName || doc.title}" downloaded.`, 'success');
+      } else {
+        downloadBinaryFile(doc.content, doc.fileName || `${doc.title}.md`, 'markdown');
+        addToast(`Markdown source "${doc.fileName || doc.title}" downloaded.`, 'success');
+      }
+    });
   };
 
   // Trigger Export Options Dialog
@@ -345,132 +388,138 @@ export default function App() {
     if (!exportDoc) return;
     setIsExportModalOpen(false);
 
-    if (exportFormat === 'pdf') {
-      addToast('Generating PDF file...', 'info');
-      
-      const printEl = document.createElement('div');
-      printEl.id = 'temp-pdf-export-container';
-      printEl.style.padding = '40px';
-      printEl.style.backgroundColor = '#FFFFFF';
-      
-      let htmlContent = '';
-      if (exportDoc.type === 'markdown') {
-        htmlContent = window.marked ? window.marked.parse(exportDoc.content) : `<p>${exportDoc.content}</p>`;
-      } else if (exportDoc.type === 'html') {
-        let contentHtml = exportDoc.content;
-        const bodyMatch = exportDoc.content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        if (bodyMatch) {
-          contentHtml = bodyMatch[1];
-        }
-        htmlContent = contentHtml;
-      }
+    runSimulatedProgress(
+      `Compiling ${exportFormat.toUpperCase()} Document`,
+      `Applying branded templates and converting layout for "${exportTitle}"...`,
+      async () => {
+        if (exportFormat === 'pdf') {
+          addToast('Generating PDF file...', 'info');
+          
+          const printEl = document.createElement('div');
+          printEl.id = 'temp-pdf-export-container';
+          printEl.style.padding = '40px';
+          printEl.style.backgroundColor = '#FFFFFF';
+          
+          let htmlContent = '';
+          if (exportDoc.type === 'markdown') {
+            htmlContent = window.marked ? window.marked.parse(exportDoc.content) : `<p>${exportDoc.content}</p>`;
+          } else if (exportDoc.type === 'html') {
+            let contentHtml = exportDoc.content;
+            const bodyMatch = exportDoc.content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            if (bodyMatch) {
+              contentHtml = bodyMatch[1];
+            }
+            htmlContent = contentHtml;
+          }
 
-      printEl.innerHTML = `
-        <div style="font-family: 'Inter', sans-serif; color: #1E293B; line-height: 1.6;">
-          <!-- Header Template -->
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0070AD; padding-bottom: 12px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="background: linear-gradient(135deg, #0070AD 0%, #17ABDA 100%); color: white; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; color: white;" fill="currentColor">
-                  <circle cx="12" cy="5" r="1.5" />
-                  <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <ellipse cx="12" cy="10" rx="2" ry="2.5" />
-                  <ellipse cx="12" cy="16.5" rx="3" ry="4" />
-                  <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                </svg>
+          printEl.innerHTML = `
+            <div style="font-family: 'Inter', sans-serif; color: #1E293B; line-height: 1.6;">
+              <!-- Header Template -->
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0070AD; padding-bottom: 12px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="background: linear-gradient(135deg, #0070AD 0%, #17ABDA 100%); color: white; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; color: white;" fill="currentColor">
+                      <circle cx="12" cy="5" r="1.5" />
+                      <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <ellipse cx="12" cy="10" rx="2" ry="2.5" />
+                      <ellipse cx="12" cy="16.5" rx="3" ry="4" />
+                      <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                      <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <span style="font-family: 'Outfit'; font-size: 16px; font-weight: 700; color: #002C52;">${exportCompany}</span>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; font-weight: 600;">Project Workspace</span>
+                  <div style="font-family: 'Outfit'; font-size: 14px; font-weight: 700; color: #0070AD;">${exportProject}</div>
+                </div>
               </div>
-              <span style="font-family: 'Outfit'; font-size: 16px; font-weight: 700; color: #002C52;">${exportCompany}</span>
+
+              <!-- Document Info Banner -->
+              <div style="background-color: #F8FAFC; border-left: 4px solid #17ABDA; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 28px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #17ABDA; letter-spacing: 1px; margin-bottom: 4px;">
+                  ${exportSubtitle}
+                </div>
+                <h1 style="font-family: 'Outfit'; font-size: 24px; font-weight: 800; color: #002C52; margin: 0 0 6px 0; line-height: 1.2;">
+                  ${exportTitle}
+                </h1>
+                <div style="font-size: 11px; color: #64748B;">
+                  Last Updated: ${new Date(exportDoc.updatedAt).toLocaleDateString()} | Format: PDF Documentation
+                </div>
+              </div>
+
+              <!-- Document Content -->
+              <div class="markdown-preview" style="font-size: 14px;">
+                ${htmlContent}
+              </div>
+
+              <!-- Footer Template -->
+              <div style="margin-top: 48px; border-top: 1px solid #E2E8F0; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500;">
+                <span>© ${new Date().getFullYear()} ${exportCompany}. All rights reserved. Confidential.</span>
+                <span>Workspace Ref: ${exportDoc.projectId}-${exportDoc.id}</span>
+              </div>
             </div>
-            <div style="text-align: right;">
-              <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; font-weight: 600;">Project Workspace</span>
-              <div style="font-family: 'Outfit'; font-size: 14px; font-weight: 700; color: #0070AD;">${exportProject}</div>
-            </div>
-          </div>
+          `;
 
-          <!-- Document Info Banner -->
-          <div style="background-color: #F8FAFC; border-left: 4px solid #17ABDA; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 28px;">
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #17ABDA; letter-spacing: 1px; margin-bottom: 4px;">
-              ${exportSubtitle}
-            </div>
-            <h1 style="font-family: 'Outfit'; font-size: 24px; font-weight: 800; color: #002C52; margin: 0 0 6px 0; line-height: 1.2;">
-              ${exportTitle}
-            </h1>
-            <div style="font-size: 11px; color: #64748B;">
-              Last Updated: ${new Date(exportDoc.updatedAt).toLocaleDateString()} | Format: PDF Documentation
-            </div>
-          </div>
+          document.body.appendChild(printEl);
 
-          <!-- Document Content -->
-          <div class="markdown-preview" style="font-size: 14px;">
-            ${htmlContent}
-          </div>
-
-          <!-- Footer Template -->
-          <div style="margin-top: 48px; border-top: 1px solid #E2E8F0; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500;">
-            <span>© ${new Date().getFullYear()} ${exportCompany}. All rights reserved. Confidential.</span>
-            <span>Workspace Ref: ${exportDoc.projectId}-${exportDoc.id}</span>
-          </div>
-        </div>
-      `;
-
-      document.body.appendChild(printEl);
-
-      try {
-        await exportToPDF('temp-pdf-export-container', `${exportTitle}.pdf`);
-        addToast('PDF template generated & downloaded successfully!', 'success');
-      } catch (err) {
-        addToast(`PDF Export Failed: ${err.message || err}`, 'error');
-      } finally {
-        document.body.removeChild(printEl);
-      }
-    } else {
-      // Word format template
-      try {
-        let htmlContent = '';
-        if (exportDoc.type === 'markdown') {
-          htmlContent = window.marked ? window.marked.parse(exportDoc.content) : `<p>${exportDoc.content}</p>`;
+          try {
+            await exportToPDF('temp-pdf-export-container', `${exportTitle}.pdf`);
+            addToast('PDF template generated & downloaded successfully!', 'success');
+          } catch (err) {
+            addToast(`PDF Export Failed: ${err.message || err}`, 'error');
+          } finally {
+            document.body.removeChild(printEl);
+          }
         } else {
-          htmlContent = exportDoc.content;
+          // Word format template
+          try {
+            let htmlContent = '';
+            if (exportDoc.type === 'markdown') {
+              htmlContent = window.marked ? window.marked.parse(exportDoc.content) : `<p>${exportDoc.content}</p>`;
+            } else {
+              htmlContent = exportDoc.content;
+            }
+
+            const templateHtml = `
+              <div style="border-bottom: 2px solid #0070AD; padding-bottom: 10px; margin-bottom: 20px;">
+                <table style="width: 100%; border: none; margin-bottom: 0;">
+                  <tr>
+                    <td style="border: none; padding: 0;">
+                      <span style="font-size: 14pt; font-weight: bold; color: #002C52;">${exportCompany}</span>
+                    </td>
+                    <td style="border: none; padding: 0; text-align: right;">
+                      <span style="font-size: 10pt; color: #64748B;">Project: </span>
+                      <span style="font-size: 11pt; font-weight: bold; color: #0070AD;">${exportProject}</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background-color: #F8FAFC; border-left: 4px solid #17ABDA; padding: 12px; margin-bottom: 20px;">
+                <div style="font-size: 9pt; font-weight: bold; color: #17ABDA; text-transform: uppercase;">${exportSubtitle}</div>
+                <h1 style="font-size: 18pt; color: #002C52; margin: 4px 0 0 0;">${exportTitle}</h1>
+                <p style="font-size: 8pt; color: #64748B; margin-top: 4px;">Last Updated: ${new Date(exportDoc.updatedAt).toLocaleDateString()}</p>
+              </div>
+              
+              <div>
+                ${htmlContent}
+              </div>
+            `;
+
+            exportToWord(templateHtml, `${exportTitle}.doc`);
+            addToast('MS Word document template exported successfully!', 'success');
+          } catch (error) {
+            addToast('MS Word Export Failed.', 'error');
+          }
         }
-
-        const templateHtml = `
-          <div style="border-bottom: 2px solid #0070AD; padding-bottom: 10px; margin-bottom: 20px;">
-            <table style="width: 100%; border: none; margin-bottom: 0;">
-              <tr>
-                <td style="border: none; padding: 0;">
-                  <span style="font-size: 14pt; font-weight: bold; color: #002C52;">${exportCompany}</span>
-                </td>
-                <td style="border: none; padding: 0; text-align: right;">
-                  <span style="font-size: 10pt; color: #64748B;">Project: </span>
-                  <span style="font-size: 11pt; font-weight: bold; color: #0070AD;">${exportProject}</span>
-                </td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="background-color: #F8FAFC; border-left: 4px solid #17ABDA; padding: 12px; margin-bottom: 20px;">
-            <div style="font-size: 9pt; font-weight: bold; color: #17ABDA; text-transform: uppercase;">${exportSubtitle}</div>
-            <h1 style="font-size: 18pt; color: #002C52; margin: 4px 0 0 0;">${exportTitle}</h1>
-            <p style="font-size: 8pt; color: #64748B; margin-top: 4px;">Last Updated: ${new Date(exportDoc.updatedAt).toLocaleDateString()}</p>
-          </div>
-          
-          <div>
-            ${htmlContent}
-          </div>
-        `;
-
-        exportToWord(templateHtml, `${exportTitle}.doc`);
-        addToast('MS Word document template exported successfully!', 'success');
-      } catch (error) {
-        addToast('MS Word Export Failed.', 'error');
       }
-    }
+    );
   };
 
   const handleExportInventory = () => {
@@ -1410,6 +1459,80 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      {/* INTRO SPLASH SCREEN */}
+      {isIntroActive && (
+        <div className={`intro-splash ${isIntroFade ? 'fade-out' : ''}`}>
+          <div className="intro-logo-wrapper">
+            <div className="intro-logo-glow"></div>
+            <svg className="intro-ant-svg" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="1.5" />
+              <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <ellipse cx="12" cy="10" rx="2" ry="2.5" />
+              <ellipse cx="12" cy="16.5" rx="3" ry="4" />
+              <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
+              <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
+              <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="intro-text-wrapper">
+            <h1 className="intro-title">
+              CapDoc Portal
+            </h1>
+            <p className="intro-subtitle">Documentation Hub</p>
+          </div>
+        </div>
+      )}
+
+      {/* CRAWLING ANT PROGRESS BAR OVERLAY */}
+      {progressState.active && (
+        <div className="progress-overlay">
+          <div className="progress-card">
+            <div className="progress-header">
+              <h3 className="progress-title">{progressState.title}</h3>
+              <p className="progress-desc">{progressState.desc}</p>
+            </div>
+            
+            <div className="progress-track-wrapper">
+              <div className="progress-track">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${progressState.percent}%` }}
+                ></div>
+                
+                <div 
+                  className={`crawling-ant ${progressState.percent < 100 ? 'crawling' : ''}`}
+                  style={{ left: `${progressState.percent}%` }}
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="1.5" />
+                    <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <ellipse cx="12" cy="10" rx="2" ry="2.5" />
+                    <ellipse cx="12" cy="16.5" rx="3" ry="4" />
+                    <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                
+                <div className="progress-finish-line"></div>
+              </div>
+            </div>
+            
+            <div className="progress-percent-label">
+              {progressState.percent}%
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
