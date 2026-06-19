@@ -370,7 +370,21 @@ export default function App() {
           <!-- Header Template -->
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0070AD; padding-bottom: 12px; margin-bottom: 24px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="background: linear-gradient(135deg, #0070AD 0%, #17ABDA 100%); color: white; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit'; font-size: 14px;">C</div>
+              <div style="background: linear-gradient(135deg, #0070AD 0%, #17ABDA 100%); color: white; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; color: white;" fill="currentColor">
+                  <circle cx="12" cy="5" r="1.5" />
+                  <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <ellipse cx="12" cy="10" rx="2" ry="2.5" />
+                  <ellipse cx="12" cy="16.5" rx="3" ry="4" />
+                  <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+              </div>
               <span style="font-family: 'Outfit'; font-size: 16px; font-weight: 700; color: #002C52;">${exportCompany}</span>
             </div>
             <div style="text-align: right;">
@@ -579,7 +593,27 @@ export default function App() {
       {/* SIDEBAR PANEL */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <div className="brand-logo">C</div>
+          <div className="brand-logo">
+            <svg viewBox="0 0 24 24" style={{ width: '22px', height: '22px', color: 'var(--cap-blue)' }} fill="currentColor">
+              {/* Head */}
+              <circle cx="12" cy="5" r="1.5" />
+              {/* Antennae */}
+              <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              {/* Thorax */}
+              <ellipse cx="12" cy="10" rx="2" ry="2.5" />
+              {/* Abdomen */}
+              <ellipse cx="12" cy="16.5" rx="3" ry="4" />
+              {/* Left Legs */}
+              <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              {/* Right Legs */}
+              <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
           <div className="brand-text">CapDoc</div>
         </div>
 
