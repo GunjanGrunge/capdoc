@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "verify:branding": "node scripts/verify-tracked-branding.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

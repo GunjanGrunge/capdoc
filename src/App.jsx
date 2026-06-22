@@ -47,6 +47,8 @@ import {
 } from './utils/exporter';
 import DocumentModal from './components/DocumentModal';
 import Github from './components/GithubIcon';
+import SplashScreen from './components/SplashScreen';
+import LoadingScreen from './components/LoadingScreen';
 
 export default function App() {
   const [dbReady, setDbReady] = useState(false);
@@ -1461,78 +1463,10 @@ export default function App() {
       </div>
 
       {/* INTRO SPLASH SCREEN */}
-      {isIntroActive && (
-        <div className={`intro-splash ${isIntroFade ? 'fade-out' : ''}`}>
-          <div className="intro-logo-wrapper">
-            <div className="intro-logo-glow"></div>
-            <svg className="intro-ant-svg" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="1.5" />
-              <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <ellipse cx="12" cy="10" rx="2" ry="2.5" />
-              <ellipse cx="12" cy="16.5" rx="3" ry="4" />
-              <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
-              <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
-              <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="intro-text-wrapper">
-            <h1 className="intro-title">
-              CapDoc Portal
-            </h1>
-            <p className="intro-subtitle">Documentation Hub</p>
-          </div>
-        </div>
-      )}
+      {isIntroActive && <SplashScreen isFading={isIntroFade} />}
 
       {/* CRAWLING ANT PROGRESS BAR OVERLAY */}
-      {progressState.active && (
-        <div className="progress-overlay">
-          <div className="progress-card">
-            <div className="progress-header">
-              <h3 className="progress-title">{progressState.title}</h3>
-              <p className="progress-desc">{progressState.desc}</p>
-            </div>
-            
-            <div className="progress-track-wrapper">
-              <div className="progress-track">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${progressState.percent}%` }}
-                ></div>
-                
-                <div 
-                  className={`crawling-ant ${progressState.percent < 100 ? 'crawling' : ''}`}
-                  style={{ left: `${progressState.percent}%` }}
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="5" r="1.5" />
-                    <path d="M11 4C10 3 8 3 7.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M13 4C14 3 16 3 16.5 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <ellipse cx="12" cy="10" rx="2" ry="2.5" />
-                    <ellipse cx="12" cy="16.5" rx="3" ry="4" />
-                    <path d="M10 9C7.5 8.5 6 7 5 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M10 10C7.5 10.5 6.5 11.5 5.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M10.5 13C8.5 14.5 7.5 16.5 7 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M14 9C16.5 8.5 18 7 19 5.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M14 10C16.5 10.5 17.5 11.5 18.5 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                    <path d="M13.5 13C15.5 14.5 16.5 16.5 17 19.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                  </svg>
-                </div>
-                
-                <div className="progress-finish-line"></div>
-              </div>
-            </div>
-            
-            <div className="progress-percent-label">
-              {progressState.percent}%
-            </div>
-          </div>
-        </div>
-      )}
+      <LoadingScreen progressState={progressState} />
     </div>
   );
 }
